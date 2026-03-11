@@ -140,32 +140,54 @@ st.markdown("""
 # ─────────────────────────────────────────────
 # DATA LOADING
 # ─────────────────────────────────────────────
+DB_PATH = "data/ipl_analytics.db"
+RAW_MATCHES    = "data/matches.csv"
+RAW_DELIVERIES = "data/deliveries.csv"
+
 @st.cache_data
 def load_data():
-    matches_path = "data/matches.csv"
-    deliveries_path = "data/deliveries.csv"
+    """
+    Prefer pre-built SQLite DB (from pipeline.py).
+    Falls back to raw CSVs if DB not found.
+    """
+    if os.path.exists(DB_PATH):
+        conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+        matches    = pd.read_sql("SELECT * FROM matches",    conn)
+        deliveries = pd.read_sql("SELECT * FROM deliveries", conn)
+        conn.close()
+        matches['date'] = pd.to_datetime(matches['date'], errors='coerce')
+        return matches, deliveries, True   # True = loaded from pipeline DB
 
-    if not os.path.exists(matches_path) or not os.path.exists(deliveries_path):
-        st.error("❌ Dataset not found! Please place `matches.csv` and `deliveries.csv` in the `data/` folder.")
-        st.info("📥 Download from: https://www.kaggle.com/datasets/patrickb1912/ipl-complete-dataset-20082020")
+    # Fallback: raw CSVs
+    if not os.path.exists(RAW_MATCHES) or not os.path.exists(RAW_DELIVERIES):
+        st.error("❌ Dataset not found! Run `python pipeline.py` first, or place CSVs in `data/`.")
+        st.info("📥 https://www.kaggle.com/datasets/patrickb1912/ipl-complete-dataset-20082020")
         st.stop()
 
-    matches = pd.read_csv(matches_path)
-    deliveries = pd.read_csv(deliveries_path)
-
-    # Clean matches
-    matches['date'] = pd.to_datetime(matches['date'], dayfirst=True, errors='coerce')
+    matches    = pd.read_csv(RAW_MATCHES)
+    deliveries = pd.read_csv(RAW_DELIVERIES)
+    matches['date']   = pd.to_datetime(matches['date'], dayfirst=True, errors='coerce')
     matches['season'] = matches['date'].dt.year
     matches.dropna(subset=['winner'], inplace=True)
-
-    return matches, deliveries
+    return matches, deliveries, False  # False = loaded from raw CSV
 
 
 def build_sqlite(matches, deliveries):
+    """Build in-memory SQLite from dataframes (fallback path)."""
     conn = sqlite3.connect(":memory:", check_same_thread=False)
-    matches.to_sql("matches", conn, if_exists="replace", index=False)
+    matches.to_sql("matches",    conn, if_exists="replace", index=False)
     deliveries.to_sql("deliveries", conn, if_exists="replace", index=False)
     return conn
+
+
+def get_db_conn():
+    """
+    Return a SQLite connection.
+    Uses the persistent DB if pipeline has been run, else in-memory.
+    """
+    if os.path.exists(DB_PATH):
+        return sqlite3.connect(DB_PATH, check_same_thread=False)
+    return build_sqlite(*load_data()[:2])
 
 
 # ─────────────────────────────────────────────
@@ -328,8 +350,8 @@ IPL_COLORS = {
 # ─────────────────────────────────────────────
 # MAIN APP
 # ─────────────────────────────────────────────
-matches, deliveries = load_data()
-conn = build_sqlite(matches, deliveries)
+matches, deliveries, from_pipeline = load_data()
+conn = get_db_conn()
 
 all_seasons = sorted(matches['season'].dropna().unique().astype(int).tolist())
 all_teams = sorted(matches['team1'].unique().tolist())
@@ -352,6 +374,11 @@ with st.sidebar:
     st.markdown(f'<span class="badge">📅 {all_seasons[0]}–{all_seasons[-1]}</span>', unsafe_allow_html=True)
     st.markdown(f'<span class="badge">🏏 {len(all_teams)} Teams</span>', unsafe_allow_html=True)
 
+    st.markdown("---")
+    if from_pipeline:
+        st.markdown('<span class="badge" style="background:linear-gradient(135deg,#064e3b,#065f46);color:#6ee7b7;">✅ ETL Pipeline DB</span>', unsafe_allow_html=True)
+    else:
+        st.markdown('<span class="badge" style="background:linear-gradient(135deg,#7c2d12,#9a3412);color:#fdba74;">⚠️ Raw CSV Mode<br><small>Run pipeline.py</small></span>', unsafe_allow_html=True)
     st.markdown("---")
     st.markdown('<p style="color:#475569;font-size:0.75rem;">Built with Python · SQL · Streamlit · Plotly</p>', unsafe_allow_html=True)
 
