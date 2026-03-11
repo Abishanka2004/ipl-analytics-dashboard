@@ -1,4 +1,4 @@
-# 🏏 IPL Analytics Dashboard
+#  IPL Analytics Dashboard
 
 > A production-grade, interactive data analytics dashboard built with Python, SQL, and Streamlit — analyzing 10+ seasons of IPL cricket data.
 
@@ -6,7 +6,7 @@
 
 ---
 
-## 📌 Project Overview
+##  Project Overview
 
 This dashboard performs deep analytical exploration of IPL match and ball-by-ball delivery data spanning 2008–2020. It uses **SQL (via SQLite in-memory DB)** for data querying, **Pandas** for transformation, and **Plotly + Streamlit** for interactive visualization.
 
@@ -17,7 +17,7 @@ This dashboard performs deep analytical exploration of IPL match and ball-by-bal
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 ipl_dashboard/
@@ -33,7 +33,7 @@ ipl_dashboard/
 
 ---
 
-## 📊 Dashboard Features
+## Dashboard Features
 
 | Tab | What It Shows |
 |-----|--------------|
@@ -81,7 +81,7 @@ Open your browser at `http://localhost:8501` 🎉
 
 ---
 
-## 🚀 Deploy to Streamlit Cloud (Free)
+## Deploy to Streamlit Cloud (Free)
 
 1. Push the project to **GitHub** (make sure `data/` folder with CSVs is included)
 2. Go to [share.streamlit.io](https://share.streamlit.io)
@@ -89,11 +89,11 @@ Open your browser at `http://localhost:8501` 🎉
 4. Set `app.py` as the main file
 5. Click **Deploy** — live in ~2 minutes!
 
-> ⚠️ **Note:** Streamlit Cloud's free tier has a 1GB file limit. The IPL dataset is well within this limit.
+> **Note:** Streamlit Cloud's free tier has a 1GB file limit. The IPL dataset is well within this limit.
 
 ---
 
-## 🧠 Key SQL Patterns Used
+## Key SQL Patterns Used
 
 ```sql
 -- Window function: Rank players by runs per season
@@ -124,7 +124,7 @@ FROM matches
 
 ---
 
-## 📁 Dataset
+## Dataset
 
 | File | Rows | Description |
 |------|------|-------------|
@@ -135,20 +135,10 @@ FROM matches
 
 ---
 
-## 💼 Resume Bullet Points (Copy-Paste Ready)
-
-- Built an end-to-end IPL sports analytics dashboard using Python, SQLite, and Streamlit, analyzing 179K+ ball-by-ball delivery records across 13 seasons
-- Wrote optimized SQL queries with JOINs, CASE statements, and conditional aggregation to derive 15+ cricket KPIs including strike rate, economy, and win probability metrics  
-- Designed an interactive 5-tab Plotly dashboard with dynamic season/player filters, deployed publicly on Streamlit Cloud as a live portfolio project
-
----
-
-## 🤝 Contributing
+##  Contributing
 
 Pull requests welcome! For major changes, please open an issue first.
 
 ---
 
-## 📄 License
 
-MIT — free to use, modify, and distribute.
