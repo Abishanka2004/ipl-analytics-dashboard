@@ -45,7 +45,7 @@ ipl_dashboard/
 
 ---
 
-## ⚙️ Setup & Run (Local)
+## Setup & Run (Local)
 
 ### Step 1 — Clone / Download the Project
 
